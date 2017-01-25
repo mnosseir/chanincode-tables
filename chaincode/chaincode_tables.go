@@ -85,7 +85,10 @@ func (t *SimpleChaincode) get_emp_by_id(stub shim.ChaincodeStubInterface,  emp_i
 		if err != nil {
 			return nil, err
 		}
-		var s string = row.Columns[0].GetString_() + ", " + row.Columns[1].GetString_() + ", " + row.Columns[2].GetString_()
+		var s string = ""
+		for i :=0 ; i<len(row.Columns) ; i++ {
+			s += row.Columns[i].GetString_()
+		}
 		emp_data := []byte(s)
 
 		if err != nil {
