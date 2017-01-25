@@ -43,11 +43,19 @@ func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface, function string
 		return nil, errors.New("Incorrect number of arguments. Expecting 1")
 	}
 
-	err := stub.PutState("hello_world", []byte(args[0]))
+	fmt.Println("Init", args)
+	
+	err := stub.CreateTable(args[0], []*shim.ColumnDefinition{
+		&shim.ColumnDefinition{Name: "EMP_ID", Type: shim.ColumnDefinition_STRING, Key: true},
+		&shim.ColumnDefinition{Name: "EMP_LNAME", Type: shim.ColumnDefinition_STRING, Key: true},
+		&shim.ColumnDefinition{Name: "EMP_FNAME", Type: shim.ColumnDefinition_STRING, Key: true},
+	})
+
+	// err := stub.PutState("hello_world", []byte(args[0]))
     if err != nil {
         return nil, err
     }
-	
+
 	return nil, nil
 }
 
@@ -60,10 +68,36 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface, function stri
         return t.Init(stub, "init", args)
     } else if function == "write" {
         return t.write(stub, args)
-    }
+    } else if function == "new_emp" {
+			err := t.create_new_emp(stub, args)
+			return nil, err
+		}
     fmt.Println("invoke did not find func: " + function)
 
 	return nil, errors.New("Received unknown function invocation: " + function)
+}
+
+func (t *SimpleChaincode) create_new_emp(stub shim.ChaincodeStubInterface, args []string) (error) {
+		fmt.Println("create_new_emp", args)
+
+		if len(args) != 3 {
+				return errors.New("Incorrect number of arguments. Expecting 3")
+		}
+		ok, err := stub.InsertRow("EMP", shim.Row{
+				Columns: []*shim.Column{
+					&shim.Column{Value: &shim.Column_String_{String_: args[0]}},
+					&shim.Column{Value: &shim.Column_String_{String_: args[1]}},
+					&shim.Column{Value: &shim.Column_String_{String_: args[2]}},
+				},
+		})
+		if !ok {
+			if err != nil {
+				return err
+			} else {
+					return errors.New("Error inserting a new row")
+			}
+		}
+		return nil
 }
 
 func (t *SimpleChaincode) write(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
