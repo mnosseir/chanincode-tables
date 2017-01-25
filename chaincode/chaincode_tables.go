@@ -71,8 +71,6 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface, function stri
     } else if function == "new_emp" {
 			err := t.create_new_emp(stub, args)
 			return nil, err
-		} else if function == "get_emp_by_id" {
-			return t.get_emp_by_id(stub, args[0])
 		}
     fmt.Println("invoke did not find func: " + function)
 
@@ -139,10 +137,10 @@ func (t *SimpleChaincode) Query(stub shim.ChaincodeStubInterface, function strin
     fmt.Println("query is running " + function)
 
     // Handle different functions
-    if function == "read" {                            //read a variable
-        return t.read(stub, args)
-    }
-    fmt.Println("query did not find func: " + function)
+		if function == "get_emp_by_id" {
+			return t.get_emp_by_id(stub, args[0])
+		}
+		fmt.Println("query did not find func: " + function)
 
     return nil, errors.New("Received unknown function query: " + function)
 }
