@@ -81,10 +81,12 @@ func (t *SimpleChaincode) get_emp_by_id(stub shim.ChaincodeStubInterface,  emp_i
 		var columns []shim.Column
 		col1 := shim.Column{Value: &shim.Column_String_{String_: emp_id}}
 		columns = append(columns, col1)
+		fmt.Println("Querying for row with with:", columns)
 		row, err := stub.GetRow("EMP", columns)
 		if err != nil {
 			return nil, err
 		}
+		fmt.Println("row found:", row )
 		var s string = ""
 		for i :=0 ; i<len(row.Columns) ; i++ {
 			s += row.Columns[i].GetString_()
