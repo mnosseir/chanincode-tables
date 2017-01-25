@@ -105,14 +105,17 @@ func (t *SimpleChaincode) create_new_emp(stub shim.ChaincodeStubInterface, args 
 		if len(args) != 3 {
 				return errors.New("Incorrect number of arguments. Expecting 3")
 		}
-		ok, err := stub.InsertRow("EMP", shim.Row{
+		row :=  shim.Row{
 				Columns: []*shim.Column{
 					&shim.Column{Value: &shim.Column_String_{String_: args[0]}},
 					&shim.Column{Value: &shim.Column_String_{String_: args[1]}},
 					&shim.Column{Value: &shim.Column_String_{String_: args[2]}},
 				},
-		})
-		if !ok {
+		}
+		fmt.Println("inserting row:", row)
+
+		ok, err := stub.InsertRow("EMP", row)
+		if !ok || err != nil {
 			if err != nil {
 				return err
 			} else {
