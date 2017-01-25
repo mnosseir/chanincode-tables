@@ -44,7 +44,7 @@ func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface, function string
 	}
 
 	fmt.Println("Init", args)
-	
+
 	err := stub.CreateTable(args[0], []*shim.ColumnDefinition{
 		&shim.ColumnDefinition{Name: "EMP_ID", Type: shim.ColumnDefinition_STRING, Key: true},
 		&shim.ColumnDefinition{Name: "EMP_LNAME", Type: shim.ColumnDefinition_STRING, Key: true},
@@ -71,10 +71,26 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface, function stri
     } else if function == "new_emp" {
 			err := t.create_new_emp(stub, args)
 			return nil, err
+		} else if function == "get_emp_by_id" {
+			return t.get_emp_by_id(stub, args[0])
 		}
     fmt.Println("invoke did not find func: " + function)
 
 	return nil, errors.New("Received unknown function invocation: " + function)
+}
+
+func (t *SimpleChaincode) get_emp_by_id(stub shim.ChaincodeStubInterface,  emp_id string) ([]byte, error) {
+		var columns []shim.Column
+		col1 := shim.Column{Value: &shim.Column_String_{String_: emp_id}}
+		columns = append(columns, col1)
+		row, err := stub.GetRow("EMP", columns)
+		var s string = row.Columns[0].GetString_() + ", " + row.Columns[1].GetString_() + ", " + row.Columns[2].GetString_()
+		emp_data := []byte(s)
+
+		if err != nil {
+			return nil, err
+		}
+		return emp_data, nil
 }
 
 func (t *SimpleChaincode) create_new_emp(stub shim.ChaincodeStubInterface, args []string) (error) {
